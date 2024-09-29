@@ -1,6 +1,8 @@
 package handlers
 
 import (
+    "time"
+
     "github.com/gin-gonic/gin"
     "github.com/go-playground/validator/v10"
     // "mime/multipart"
@@ -10,19 +12,23 @@ import (
     "shiftinpro/utility"
 )
 
-const OTP int = 1234
-
 var validate = validator.New()
 
 type ReqUserRegister struct {
-    Phone string `json:"phone" validate:"required,e164"`
-    Name  string `json:"name" validate:"required"`
-    OTP   int    `json:"otp" validate:"required,min=1000,max=9999"`
+    Phone    string `json:"phone" validate:"required,e164"`
+    Name     string `json:"name" validate:"required"`
+    OTP      int    `json:"otp" validate:"required,min=1000,max=9999"`
+    UserType int    `json:"userType" validate:"required,min=1,max=6"`
     // Image *multipart.FileHeader `form:"image" binding:"omitempty"`
 }
+
 type ReqUserLogin struct {
     Phone string `json:"phone" validate:"required,e164"`
     OTP   int    `json:"otp" validate:"required,min=1000,max=9999"`
+}
+
+type ReqResendOTP struct {
+    Phone string `json:"phone" validate:"required,e164"`
 }
 
 type UserHandler struct {
@@ -47,8 +53,10 @@ func (h *UserHandler) Register(c *gin.Context) {
     }
 
     user := models.User{
-        Phone: input.Phone,
-        Name:  input.Name,
+        Phone:         input.Phone,
+        Name:          input.Name,
+        UserType:      input.UserType,
+        IsOtpVerified: true,
         // Image: imagePath,
         // OTP:   input.OTP,
     }
@@ -106,7 +114,7 @@ func (h *UserHandler) Login(c *gin.Context) {
     // Fetch user
     user, err := h.userService.GetUser(input.Phone)
     if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"status": false, "message": "Invalid phone or OTP", "error": err.Error()})
+        c.JSON(http.StatusUnauthorized, gin.H{"status": false, "next_screen": "register", "message": "User doesn't exists!", "error": err.Error()})
         return
     }
     valid, err := h.userService.ValidateOTP(input.Phone, input.OTP)
@@ -137,4 +145,53 @@ func (h *UserHandler) Login(c *gin.Context) {
             "image":        user.Image,
         },
     })
+}
+
+func (h *UserHandler) SendOTP(c *gin.Context) {
+    var input ReqResendOTP
+
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid input format", "error": err.Error()})
+        return
+    }
+
+    if err := validate.Struct(input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Validation failed", "error": err.Error()})
+        return
+    }
+
+    // Fetch user
+    user, err := h.userService.GetUser(input.Phone)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"status": false, "next_screen": "register", "message": "User doesn't exists!", "error": err.Error()})
+        return
+    }
+
+    otpInfo := utility.GetOTPInfo(user.Phone)
+    if otpInfo != nil {
+        if time.Since(otpInfo.LastSent).Minutes() < utility.OTP_MAX_MINS && otpInfo.Attempts >= utility.OTP_MAX_ATTEMPT_COUNT {
+            c.JSON(http.StatusTooManyRequests, gin.H{"status": false, "message": "Too many attempts, try again after 5 minutes"})
+            return
+        }
+
+        if time.Since(otpInfo.LastSent).Minutes() > 5 {
+            utility.ResetOTPInfo(user.Phone)
+            otpInfo = &utility.OTPInfo{}
+        }
+    } else {
+        otpInfo = &utility.OTPInfo{} // Initialize if nil
+    }
+
+    otpInfo.Attempts++
+    otpInfo.LastSent = time.Now()
+    utility.SetOTPInfo(user.Phone, otpInfo)
+
+    isOtpSent, err := h.userService.SendOTP(user.Phone)
+    if err != nil || !isOtpSent {
+        c.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Something went wrong while sending OTP", "error": err.Error()})
+        return
+    }
+
+    // Resend OTP logic here
+    c.JSON(http.StatusOK, gin.H{"status": true, "message": "OTP sent successfully!"})
 }

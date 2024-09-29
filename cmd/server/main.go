@@ -23,6 +23,7 @@ func main() {
         {
             user.POST("/register", userHandler.Register)
             user.POST("/login", userHandler.Login)
+            user.POST("/send-otp", userHandler.SendOTP)
         }
     }
 
