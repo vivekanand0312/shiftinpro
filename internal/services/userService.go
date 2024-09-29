@@ -2,15 +2,18 @@ package services
 
 import (
     "errors"
+    "time"
 
     "shiftinpro/internal/models"
     "shiftinpro/internal/repository"
+    "shiftinpro/utility"
 )
 
 type UserService interface {
     SaveUser(user *models.User) error
     GetUser(phone string) (*models.User, error)
     ValidateOTP(phone string, otp int) (bool, error)
+    SendOTP(phone string) (bool, error)
 }
 
 type userService struct {
@@ -30,12 +33,37 @@ func (s *userService) GetUser(phone string) (*models.User, error) {
 }
 
 func (s *userService) ValidateOTP(phone string, otp int) (bool, error) {
-    if phone == "" {
-        return false, errors.New("invalid Phone")
+    otpInfo := utility.GetOTPInfo(phone)
+
+    if otpInfo != nil {
+        if time.Since(otpInfo.LastSent).Minutes() < utility.OTP_MAX_MINS && otpInfo.Attempts >= utility.OTP_MAX_ATTEMPT_COUNT {
+            return false, errors.New("too many attempts, try again after 5 minutes")
+        }
+
+        if time.Since(otpInfo.LastSent).Minutes() > 5 {
+            utility.ResetOTPInfo(phone)
+            otpInfo = &utility.OTPInfo{}
+        }
+    } else {
+        otpInfo = &utility.OTPInfo{}
     }
 
-    if otp != 1234 {
+    if otp != 1234 { // Assuming OTP is constant here, replace with actual logic
+        otpInfo.Attempts++
+        otpInfo.LastSent = time.Now()
+        utility.SetOTPInfo(phone, otpInfo)
         return false, errors.New("invalid OTP")
     }
+
+    otpInfo.Attempts = 0
+    utility.SetOTPInfo(phone, otpInfo)
     return true, nil
+}
+
+func (s userService) SendOTP(phone string) (bool, error) {
+    if phone != "" {
+        return true, nil
+    } else {
+        return false, errors.New("OTP Sending failed!")
+    }
 }
