@@ -2,7 +2,7 @@ package repository
 
 import (
     "gorm.io/gorm"
-    "shiftproin/internal/models"
+    "shiftinpro/internal/models"
 )
 
 type UserRepository interface {

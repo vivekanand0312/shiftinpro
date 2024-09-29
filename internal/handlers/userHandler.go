@@ -5,9 +5,9 @@ import (
     "github.com/go-playground/validator/v10"
     // "mime/multipart"
     "net/http"
-    "shiftproin/internal/models"
-    "shiftproin/internal/services"
-    "shiftproin/utility"
+    "shiftinpro/internal/models"
+    "shiftinpro/internal/services"
+    "shiftinpro/utility"
 )
 
 const OTP int = 1234
