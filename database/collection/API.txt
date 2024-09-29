@@ -1,0 +1,16 @@
+1. REGISTER:
+curl --location 'localhost:8080/api/v1/user/register' \
+--header 'Content-Type: application/json' \
+--data '{
+    "phone": "+99892720841",
+    "name": "Test",
+    "otp": 1234
+}'
+
+2. LOGIN:
+curl --location 'localhost:8080/api/v1/user/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "phone": "+99892720841",
+    "otp": 1234
+}' 
