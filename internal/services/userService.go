@@ -3,8 +3,8 @@ package services
 import (
     "errors"
 
-    "shiftproin/internal/models"
-    "shiftproin/internal/repository"
+    "shiftinpro/internal/models"
+    "shiftinpro/internal/repository"
 )
 
 type UserService interface {

@@ -1,4 +1,4 @@
-module shiftproin
+module shiftinpro
 
 go 1.19
 
