@@ -2,10 +2,10 @@ package main
 
 import (
     "github.com/gin-gonic/gin"
-    "shiftproin/internal/handlers"
-    "shiftproin/internal/repository"
-    "shiftproin/internal/services"
-    "shiftproin/utility"
+    "shiftinpro/internal/handlers"
+    "shiftinpro/internal/repository"
+    "shiftinpro/internal/services"
+    "shiftinpro/utility"
 )
 
 func main() {
