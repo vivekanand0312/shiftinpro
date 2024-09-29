@@ -1,54 +1,99 @@
 package utility
 
 import (
-	"database/sql"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"log"
 	"os"
-
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
+	"time"
 )
 
-var DB *sql.DB
+var db *gorm.DB
 
-// InitDB initializes the database connection
-func InitDB() *sql.DB {
+// Load environment variables
+func LoadEnv() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatalf("Error loading .env file")
 	}
+}
 
-	// Get database credentials from environment variables
+// Initialize DB connection
+func InitDB() *gorm.DB {
+	LoadEnv()
+
 	user := os.Getenv("DB_USER")
 	pass := os.Getenv("DB_PASS")
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	name := os.Getenv("DB_NAME")
 
-	// Connection string
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", user, pass, host, port, name)
-
-	// Connect to the database
-	db, err := sql.Open("mysql", dsn)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", user, pass, host, port, name)
+	var err error
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Error connecting to the database: ", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
-
-	// Ping to ensure the connection is valid
-	if err := db.Ping(); err != nil {
-		log.Fatal("Could not ping the database: ", err)
-	}
-
-	fmt.Println("Database connected successfully!")
-
-	DB = db
-	return DB
+	return db
 }
 
-// CloseDB closes the database connection
 func CloseDB() {
-	if DB != nil {
-		DB.Close()
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("Failed to get sqlDB: %v", err)
 	}
+	sqlDB.Close()
+}
+
+// JWT utilities
+type JWTClaim struct {
+	Phone string `json:"phone"`
+	jwt.StandardClaims
+}
+
+func GenerateJWT(phone string) (string, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	claims := &JWTClaim{
+		Phone: phone,
+		StandardClaims: jwt.StandardClaims{
+			// ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24 * 90).Unix(), // 90 days
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secretKey))
+}
+
+func GenerateRefreshToken(phone string) (string, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	claims := &JWTClaim{
+		Phone: phone,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 168).Unix(), // 1 week
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(secretKey))
+}
+
+func ValidateJWT(tokenString string) (*JWTClaim, error) {
+	secretKey := os.Getenv("JWT_SECRET")
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		&JWTClaim{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(secretKey), nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*JWTClaim)
+	if !ok || !token.Valid {
+		return nil, err
+	}
+	return claims, nil
 }
