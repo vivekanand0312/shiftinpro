@@ -8,6 +8,10 @@ CREATE TABLE users (
     gov_id_type ENUM('aadhar', 'gst') DEFAULT NULL,
     gov_id_val TINYINT DEFAULT NULL,
     is_gov_id_verified TINYINT NOT NULL DEFAULT 0,
+    house VARCHAR(255) DEFAULT NULL,
+    area VARCHAR(255) DEFAULT NULL,
+    landmark VARCHAR(255) DEFAULT NULL,
+    sd_address_id INT DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
