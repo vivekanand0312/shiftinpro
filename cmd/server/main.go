@@ -16,6 +16,10 @@ func main() {
     userService := services.NewUserService(userRepo)
     userHandler := handlers.NewUserHandler(userService)
 
+    addressRepo := repository.NewAddressRepository(db)
+    addressService := services.NewAddressService(addressRepo)
+    addressHandler := handlers.NewAddressHandler(addressService)
+
     r := gin.Default()
     apiV1 := r.Group("/api/v1")
     {
@@ -24,6 +28,11 @@ func main() {
             user.POST("/register", userHandler.Register)
             user.POST("/login", userHandler.Login)
             user.POST("/send-otp", userHandler.SendOTP)
+        }
+
+        address := apiV1.Group("/address")
+        {
+            address.POST("/get-address", addressHandler.GetAddress)
         }
     }
 
