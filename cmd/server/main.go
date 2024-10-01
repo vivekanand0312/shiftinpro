@@ -3,6 +3,7 @@ package main
 import (
     "github.com/gin-gonic/gin"
     "shiftinpro/internal/handlers"
+    "shiftinpro/internal/middleware"
     "shiftinpro/internal/repository"
     "shiftinpro/internal/services"
     "shiftinpro/utility"
@@ -29,13 +30,16 @@ func main() {
             user.POST("/login", userHandler.Login)
             user.POST("/send-otp", userHandler.SendOTP)
 
-            //Auth user
-            user.POST("/update-address/:id", userHandler.UpdateAddress)
+            //Authorized route
+            user.Use(middleware.AuthMiddleware()) // Apply the Auth middleware
+            user.POST("/update-address", userHandler.UpdateAddress)
 
         }
 
         address := apiV1.Group("/address")
         {
+            //Authorized route
+            address.Use(middleware.AuthMiddleware()) // Apply the Auth middleware
             address.POST("/get-address", addressHandler.GetAddress)
         }
     }
