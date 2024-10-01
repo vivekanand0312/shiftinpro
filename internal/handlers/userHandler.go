@@ -1,7 +1,6 @@
 package handlers
 
 import (
-    "strconv"
     "time"
 
     "github.com/gin-gonic/gin"
@@ -113,7 +112,7 @@ func (h *UserHandler) Login(c *gin.Context) {
     }
 
     // Fetch user
-    user, err := h.userService.GetUser(input.Phone)
+    user, err := h.userService.GetUserByPhone(input.Phone)
     if err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"status": false, "next_screen": "register", "message": "User doesn't exists!", "error": err.Error()})
         return
@@ -162,7 +161,7 @@ func (h *UserHandler) SendOTP(c *gin.Context) {
     }
 
     // Fetch user
-    user, err := h.userService.GetUser(input.Phone)
+    user, err := h.userService.GetUserByPhone(input.Phone)
     if err != nil {
         c.JSON(http.StatusUnauthorized, gin.H{"status": false, "next_screen": "register", "message": "User doesn't exists!", "error": err.Error()})
         return
@@ -205,14 +204,19 @@ func (h *UserHandler) UpdateAddress(c *gin.Context) {
         return
     }
 
-    userIDParam := c.Param("id")
-    userID, err := strconv.Atoi(userIDParam)
-    if err != nil || userID <= 0 {
+    phone, exists := c.Get("phone")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"status": false, "message": "Unauthorized"})
+        return
+    }
+
+    user, err := h.userService.GetUserByPhone(phone.(string))
+    if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid user ID", "error": err.Error()})
         return
     }
 
-    err = h.userService.UpdateAddress(userID, input)
+    err = h.userService.UpdateAddress(user.ID, input)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to update address", "error": err.Error()})
         return

@@ -11,10 +11,10 @@ import (
 
 type UserService interface {
     SaveUser(user *models.User) error
-    GetUser(phone string) (*models.User, error)
+    GetUserByPhone(phone string) (*models.User, error)
     ValidateOTP(phone string, otp int) (bool, error)
     SendOTP(phone string) (bool, error)
-    UpdateAddress(userID int, input models.ReqUpdateAddress) error
+    UpdateAddress(userID uint, input models.ReqUpdateAddress) error
 }
 
 type userService struct {
@@ -29,7 +29,7 @@ func (s *userService) SaveUser(user *models.User) error {
     return s.repo.CreateUser(user)
 }
 
-func (s *userService) GetUser(phone string) (*models.User, error) {
+func (s *userService) GetUserByPhone(phone string) (*models.User, error) {
     return s.repo.GetUserByPhone(phone)
 }
 
@@ -69,7 +69,7 @@ func (s userService) SendOTP(phone string) (bool, error) {
     }
 }
 
-func (s *userService) UpdateAddress(userID int, input models.ReqUpdateAddress) error {
+func (s *userService) UpdateAddress(userID uint, input models.ReqUpdateAddress) error {
     user := models.User{
         House:       input.House,
         Area:        input.Area,

@@ -66,6 +66,7 @@ curl --location 'localhost:8080/api/v1/user/send-otp' \
 ```sh
 curl --location 'localhost:8080/api/v1/address/get-address' \
 --header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis5OTg5MjcyMDg0MiIsImV4cCI6MTczNTU1NDU0MH0.j6FJ35gSGVhwJQPpLLwzDhD-ShbD9-zEljnvvpJ9FZw' \
 --data '{
     "pincode": 400001
 }'
@@ -74,6 +75,7 @@ curl --location 'localhost:8080/api/v1/address/get-address' \
 ```sh
 curl --location 'localhost:8080/api/v1/address/get-address' \
 --header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis5OTg5MjcyMDg0MiIsImV4cCI6MTczNTU1NDU0MH0.j6FJ35gSGVhwJQPpLLwzDhD-ShbD9-zEljnvvpJ9FZw' \
 --data '{
     "state": "maharashtra"
 }'
@@ -101,12 +103,13 @@ curl --location 'localhost:8080/api/v1/address/get-address' \
 ```
 ### 4. UPDATE-ADDRESS:
 ```sh
-curl --location 'localhost:8080/api/v1/user/update-address/{:userID}' \
+curl --location 'localhost:8080/api/v1/user/update-address' \
 --header 'Content-Type: application/json' \
+--header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis5OTg5MjcyMDg0MiIsImV4cCI6MTczNTU1NDU0MH0.j6FJ35gSGVhwJQPpLLwzDhD-ShbD9-zEljnvvpJ9FZw' \
 --data '{
     "house": "C/301",
     "area": "New link road, Evershine",
-    "landmark": "D-Mart",
+    "landmark": "D-Mart lane",
     "sd_address_id": 123
 }'
 ```
