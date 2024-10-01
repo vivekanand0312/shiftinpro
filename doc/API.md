@@ -33,6 +33,19 @@ curl --location 'localhost:8080/api/v1/user/register' \
 }'
 ```
 
+#### Response OBJ:
+```sh
+{
+    "message": "SUCCESS",
+    "status": true,
+    "userInfo": {
+        "name": "Test",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis5OTg5MjcyMDg0MSIsImV4cCI6MTcyODM4MDI0OX0.6LmSEfsPvB-FmrC6RpZey6HQsGUue38qVf4PX6uB1ss",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZSI6Iis5OTg5MjcyMDg0MSIsImV4cCI6MTczNTU1MTQ0OX0.cZ0P_4pNyjFC5mUWY93sP5fzGpiyJAceRhKRFuJ3lBs"
+    }
+}
+```
+
 ### 3. SEND-OTP:
 ```sh
 curl --location 'localhost:8080/api/v1/user/send-otp' \
@@ -40,6 +53,13 @@ curl --location 'localhost:8080/api/v1/user/send-otp' \
 --data '{
     "phone": "+99892720841"
 }'
+```
+#### Response OBJ:
+```sh
+{
+    "message": "OTP sent successfully!",
+    "status": true
+}
 ```
 
 ### 4. GET-ADDRESS:
@@ -81,7 +101,7 @@ curl --location 'localhost:8080/api/v1/address/get-address' \
 ```
 ### 4. UPDATE-ADDRESS:
 ```sh
-curl --location 'localhost:8080/api/v1/user/update-address/1' \
+curl --location 'localhost:8080/api/v1/user/update-address/{:userID}' \
 --header 'Content-Type: application/json' \
 --data '{
     "house": "C/301",
@@ -89,4 +109,11 @@ curl --location 'localhost:8080/api/v1/user/update-address/1' \
     "landmark": "D-Mart",
     "sd_address_id": 123
 }'
+```
+#### Response OBJ:
+```sh
+{
+    "message": "Address updated successfully",
+    "status": true
+}
 ```
