@@ -1,6 +1,7 @@
 package handlers
 
 import (
+    "strconv"
     "time"
 
     "github.com/gin-gonic/gin"
@@ -194,4 +195,28 @@ func (h *UserHandler) SendOTP(c *gin.Context) {
 
     // Resend OTP logic here
     c.JSON(http.StatusOK, gin.H{"status": true, "message": "OTP sent successfully!"})
+}
+
+func (h *UserHandler) UpdateAddress(c *gin.Context) {
+    var input models.ReqUpdateAddress
+
+    if err := c.ShouldBindJSON(&input); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid input format", "error": err.Error()})
+        return
+    }
+
+    userIDParam := c.Param("id")
+    userID, err := strconv.Atoi(userIDParam)
+    if err != nil || userID <= 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"status": false, "message": "Invalid user ID", "error": err.Error()})
+        return
+    }
+
+    err = h.userService.UpdateAddress(userID, input)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"status": false, "message": "Failed to update address", "error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"status": true, "message": "Address updated successfully"})
 }

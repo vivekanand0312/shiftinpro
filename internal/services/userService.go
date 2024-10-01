@@ -14,6 +14,7 @@ type UserService interface {
     GetUser(phone string) (*models.User, error)
     ValidateOTP(phone string, otp int) (bool, error)
     SendOTP(phone string) (bool, error)
+    UpdateAddress(userID int, input models.ReqUpdateAddress) error
 }
 
 type userService struct {
@@ -66,4 +67,14 @@ func (s userService) SendOTP(phone string) (bool, error) {
     } else {
         return false, errors.New("OTP Sending failed!")
     }
+}
+
+func (s *userService) UpdateAddress(userID int, input models.ReqUpdateAddress) error {
+    user := models.User{
+        House:       input.House,
+        Area:        input.Area,
+        Landmark:    input.Landmark,
+        SdAddressID: input.SdAddressID,
+    }
+    return s.repo.UpdateUserAddress(userID, user)
 }

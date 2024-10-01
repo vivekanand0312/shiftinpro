@@ -21,3 +21,10 @@ type User struct {
     CreatedAt       time.Time `gorm:"autoCreateTime"`
     UpdatedAt       time.Time `gorm:"autoUpdateTime"`
 }
+
+type ReqUpdateAddress struct {
+    House       *string `json:"house,omitempty"`
+    Area        *string `json:"area,omitempty"`
+    Landmark    *string `json:"landmark,omitempty"`
+    SdAddressID int     `json:"sd_address_id"`
+}
