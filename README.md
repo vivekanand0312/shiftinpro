@@ -1,4 +1,4 @@
-# shiftInPRO
+# ShiftInPRO
 ### Mysql:
 ```sh
 mysql -uroot -p
