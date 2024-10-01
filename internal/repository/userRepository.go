@@ -9,6 +9,7 @@ type UserRepository interface {
     CreateUser(user *models.User) error
     GetUserByID(id uint) (*models.User, error)
     GetUserByPhone(phone string) (*models.User, error)
+    UpdateUserAddress(userID int, user models.User) error
 }
 
 type userRepository struct {
@@ -33,4 +34,13 @@ func (r *userRepository) GetUserByPhone(phone string) (*models.User, error) {
     var user models.User
     result := r.db.Where("phone = ?", phone).First(&user)
     return &user, result.Error
+}
+
+func (r *userRepository) UpdateUserAddress(userID int, user models.User) error {
+    return r.db.Model(&models.User{}).Where("id = ?", userID).Updates(models.User{
+        House:       user.House,
+        Area:        user.Area,
+        Landmark:    user.Landmark,
+        SdAddressID: user.SdAddressID,
+    }).Error
 }

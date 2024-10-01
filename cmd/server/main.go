@@ -28,6 +28,10 @@ func main() {
             user.POST("/register", userHandler.Register)
             user.POST("/login", userHandler.Login)
             user.POST("/send-otp", userHandler.SendOTP)
+
+            //Auth user
+            user.POST("/update-address/:id", userHandler.UpdateAddress)
+
         }
 
         address := apiV1.Group("/address")
