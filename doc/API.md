@@ -120,3 +120,28 @@ curl --location 'localhost:8080/api/v1/user/update-address' \
     "status": true
 }
 ```
+
+### 5. SEED ITEM-CHECKLISTS:
+```sh
+curl --location 'localhost:8080/api/v1/booking/seed/item-checklists' \
+--data ''
+```
+#### Response OBJ:
+```sh
+{
+    "status": true,
+    "data": [
+        {
+            "itemID": 1101,
+            "storageKindID": 1,
+            "category": "Bedroom",
+            "displayName": "Bed Single",
+            "length": 72,
+            "width": 36,
+            "height": 24,
+            "area": 2592,
+            "volume": 62208
+        },{},...,
+    ]
+}
+```

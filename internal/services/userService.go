@@ -5,7 +5,7 @@ import (
     "time"
 
     "shiftinpro/internal/models"
-    "shiftinpro/internal/repository"
+    "shiftinpro/internal/repositories"
     "shiftinpro/utility"
 )
 
@@ -18,10 +18,10 @@ type UserService interface {
 }
 
 type userService struct {
-    repo repository.UserRepository
+    repo repositories.UserRepository
 }
 
-func NewUserService(repo repository.UserRepository) UserService {
+func NewUserService(repo repositories.UserRepository) UserService {
     return &userService{repo: repo}
 }
 

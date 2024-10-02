@@ -2,7 +2,7 @@ package services
 
 import (
 	"shiftinpro/internal/models"
-	"shiftinpro/internal/repository"
+	"shiftinpro/internal/repositories"
 )
 
 type AddressService interface {
@@ -10,10 +10,10 @@ type AddressService interface {
 }
 
 type addressService struct {
-	repo repository.AddressRepository
+	repo repositories.AddressRepository
 }
 
-func NewAddressService(repo repository.AddressRepository) AddressService {
+func NewAddressService(repo repositories.AddressRepository) AddressService {
 	return &addressService{repo: repo}
 }
 

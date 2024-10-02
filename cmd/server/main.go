@@ -4,7 +4,7 @@ import (
     "github.com/gin-gonic/gin"
     "shiftinpro/internal/handlers"
     "shiftinpro/internal/middleware"
-    "shiftinpro/internal/repository"
+    "shiftinpro/internal/repositories"
     "shiftinpro/internal/services"
     "shiftinpro/utility"
 )
@@ -13,13 +13,17 @@ func main() {
     db := utility.InitDB()
     defer utility.CloseDB()
 
-    userRepo := repository.NewUserRepository(db)
+    userRepo := repositories.NewUserRepository(db)
     userService := services.NewUserService(userRepo)
     userHandler := handlers.NewUserHandler(userService)
 
-    addressRepo := repository.NewAddressRepository(db)
+    addressRepo := repositories.NewAddressRepository(db)
     addressService := services.NewAddressService(addressRepo)
     addressHandler := handlers.NewAddressHandler(addressService)
+
+    bookingRepo := repositories.NewBookingRepository(db)
+    bookingService := services.NewBookingService(bookingRepo)
+    bookingHandler := handlers.NewBookingHandler(bookingService)
 
     r := gin.Default()
     apiV1 := r.Group("/api/v1")
@@ -41,6 +45,11 @@ func main() {
             //Authorized route
             address.Use(middleware.AuthMiddleware()) // Apply the Auth middleware
             address.POST("/get-address", addressHandler.GetAddress)
+        }
+
+        booking := apiV1.Group("/booking")
+        {
+            booking.GET("/seed/item-checklists", bookingHandler.GetItemChecklists)
         }
     }
 
